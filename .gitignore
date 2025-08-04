@@ -1,1 +1,6 @@
 .idea
+.editorconfig
+composer.lock
+symfony.lock
+vendor/
+var/
