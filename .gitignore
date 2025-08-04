@@ -4,3 +4,9 @@ composer.lock
 symfony.lock
 vendor/
 var/
+compose.override.yaml
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
