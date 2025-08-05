@@ -13,15 +13,17 @@ class VehicleMaker
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['vehicleMaker:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['vehicleMaker:read'])]
     private ?string $name = null;
 
     /**
      * @var Collection<int, Vehicle>
      */
-    #[ORM\OneToMany(targetEntity: Vehicle::class, mappedBy: 'maker')]
+    #[ORM\OneToMany(targetEntity: Vehicle::class, mappedBy: 'maker', orphanRemoval: true)]
     private Collection $vehicles;
 
     public function __construct()
