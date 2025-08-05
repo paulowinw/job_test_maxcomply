@@ -5,8 +5,20 @@ symfony.lock
 vendor/
 var/
 compose.override.yaml
+config/bundles.php
+phpunit.dist.xml
 
 ###> phpunit/phpunit ###
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
