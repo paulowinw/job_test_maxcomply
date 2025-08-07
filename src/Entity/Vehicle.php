@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\VehicleRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: VehicleRepository::class)]
 class Vehicle
@@ -12,62 +13,49 @@ class Vehicle
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['vehicle:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'vehicles')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['vehicle:read'])]
+    #[Ignore]
     private ?VehicleMaker $maker = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['vehicle:read'])]
     private ?string $type = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['vehicle:read'])]
     private ?string $model = null;
 
     // --- Technical Parameters ---
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?int $topSpeed = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?string $engineType = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?int $enginePower = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?string $fuelType = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?string $length = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?string $width = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?string $height = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?string $weight = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?int $numberOfSeats = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    #[Groups(['vehicle:read', 'vehicle:update'])]
     private ?string $zeroToHundredTime = null;
 
     public function getId(): ?int

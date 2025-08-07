@@ -6,6 +6,7 @@ use App\Repository\VehicleMakerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: VehicleMakerRepository::class)]
 class VehicleMaker
@@ -13,18 +14,16 @@ class VehicleMaker
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['vehicleMaker:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['vehicleMaker:read'])]
     private ?string $name = null;
 
     /**
      * @var Collection<int, Vehicle>
      */
     #[ORM\OneToMany(targetEntity: Vehicle::class, mappedBy: 'maker', orphanRemoval: true)]
-    #[Groups(['vehicleMaker:read'])]
+    #[Ignore]
     private Collection $vehicles;
 
     public function __construct()

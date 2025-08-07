@@ -53,7 +53,9 @@ class VehicleController extends AbstractController
 
         $makers = $this->vehicleMakerRepository->findMakersByVehicleType($type);
 
-        return $this->json($makers, Response::HTTP_OK, [], ['groups' => 'vehicleMaker:read']);
+        $jsonContent = $this->serializer->serialize($makers, 'json');
+
+        return $this->json($jsonContent, Response::HTTP_OK);
     }
 
     /**
@@ -69,7 +71,9 @@ class VehicleController extends AbstractController
             return $this->json(['error' => 'Vehicle not found.'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json($vehicle, Response::HTTP_OK, [], ['groups' => 'vehicle:read']);
+        $jsonContent = $this->serializer->serialize($vehicle, 'json');
+
+        return $this->json($jsonContent, Response::HTTP_OK);
     }
 
     /**
