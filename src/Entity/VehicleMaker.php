@@ -24,6 +24,7 @@ class VehicleMaker
      * @var Collection<int, Vehicle>
      */
     #[ORM\OneToMany(targetEntity: Vehicle::class, mappedBy: 'maker', orphanRemoval: true)]
+    #[Groups(['vehicleMaker:read'])]
     private Collection $vehicles;
 
     public function __construct()
