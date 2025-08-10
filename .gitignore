@@ -5,7 +5,6 @@ symfony.lock
 vendor/
 var/
 compose.override.yaml
-phpunit.dist.xml
 
 ###> phpunit/phpunit ###
 /phpunit.xml
