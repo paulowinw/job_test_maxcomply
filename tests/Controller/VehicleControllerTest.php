@@ -9,6 +9,8 @@ use App\Repository\VehicleMakerRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class VehicleControllerTest extends WebTestCase
 {
@@ -24,15 +26,38 @@ class VehicleControllerTest extends WebTestCase
     public static function tearDownAfterClass(): void
     {
         // Clean up database after all tests
-        $makerRepository = self::$entityManager->getRepository(VehicleMaker::class);
-        $makers = $makerRepository->findAll();
-        foreach ($makers as $maker) {
-            self::$entityManager->remove($maker);
-        }
-        self::$entityManager->flush();
+        self::truncateEntities();
 
         self::$entityManager = null;
         self::$client = null;
+    }
+
+    private static function truncateEntities(): void
+    {
+        $connection = self::$entityManager->getConnection();
+        $platform = $connection->getDatabasePlatform();
+
+        // Disable foreign key checks
+        $connection->executeQuery('SET FOREIGN_KEY_CHECKS = 0;');
+
+        try {
+            self::$entityManager->getClassMetadata(Vehicle::class);
+            $tableName = self::$entityManager->getClassMetadata(Vehicle::class)->getTableName();
+            $connection->executeStatement($platform->getTruncateTableSQL($tableName, true));
+        } catch (\Exception $e) {
+            // Handle exception if the entity does not exist
+        }
+
+        try {
+            self::$entityManager->getClassMetadata(VehicleMaker::class);
+            $tableName = self::$entityManager->getClassMetadata(VehicleMaker::class)->getTableName();
+            $connection->executeStatement($platform->getTruncateTableSQL($tableName, true));
+        } catch (\Exception $e) {
+            // Handle exception if the entity does not exist
+        }
+
+        // Re-enable foreign key checks
+        $connection->executeQuery('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     private function createData()
