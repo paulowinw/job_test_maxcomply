@@ -1,17 +1,32 @@
 security:
+    # enable_authenticator_manager: true # Remove this line
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        # A simple in-memory user provider for this example.
+        # In a real app, you would use a database.
+        app_user_provider:
+            memory:
+                users:
+                    admin:
+                        password: '$2y$13$h1E4/R7B5tM5C32E7d2b2OOg.d.T.C8gY5q.Q5G.J7B.G.H4L1V.H8.' # A hashed password for "password"
+                        roles: ['ROLE_ADMIN']
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
+            pattern: ^/api
+            stateless: true
+            # This is a dummy authenticator. A real-world app would use a
+            # proper token authenticator.
+            entry_point: App\Security\ApiTokenAuthenticator
+            custom_authenticators:
+                - App\Security\ApiTokenAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -24,6 +39,8 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/vehicles/\d+, methods: [PATCH], roles: ROLE_ADMIN }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
