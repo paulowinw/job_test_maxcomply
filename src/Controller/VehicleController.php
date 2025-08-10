@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Vehicle;
-use App\Entity\VehicleMaker;
 use App\Repository\VehicleMakerRepository;
 use App\Repository\VehicleRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/vehicles')]
 class VehicleController extends AbstractController
@@ -78,7 +76,6 @@ class VehicleController extends AbstractController
      * Body: {"topSpeed": 250}
      */
     #[Route('/{id}', name: 'update_vehicle_parameter', methods: ['PATCH'])]
-    #[IsGranted('ROLE_ADMIN')] // Restrict to authorized users
     public function updateVehicleParameter(int $id, Request $request): JsonResponse
     {
         $vehicle = $this->vehicleRepository->find($id);
@@ -87,7 +84,7 @@ class VehicleController extends AbstractController
             return $this->json(['error' => 'Vehicle not found.'], Response::HTTP_NOT_FOUND);
         }
 
-        $data = json_decode($request->getContent(), true);
+        json_decode($request->getContent(), true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             return $this->json(['error' => 'Invalid JSON body.'], Response::HTTP_BAD_REQUEST);
         }
@@ -97,7 +94,7 @@ class VehicleController extends AbstractController
             $request->getContent(),
             Vehicle::class,
             'json',
-            ['object_to_populate' => $vehicle, 'groups' => 'vehicle:update']
+            ['object_to_populate' => $vehicle]
         );
 
         // Validate the updated vehicle object
@@ -112,6 +109,6 @@ class VehicleController extends AbstractController
 
         $this->entityManager->flush();
 
-        return $this->json($vehicle, Response::HTTP_OK, [], ['groups' => 'vehicle:read']);
+        return $this->json($vehicle, Response::HTTP_OK);
     }
 }

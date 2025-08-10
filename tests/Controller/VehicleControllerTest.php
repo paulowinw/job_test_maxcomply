@@ -4,53 +4,56 @@ namespace App\Tests\Controller;
 
 use App\Entity\Vehicle;
 use App\Entity\VehicleMaker;
-use App\Repository\VehicleRepository;
-use App\Repository\VehicleMakerRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\Common\Collections\ArrayCollection;
+
 
 class VehicleControllerTest extends WebTestCase
 {
-    private static $client;
-    private static $entityManager;
+    private $client;
+    private $entityManager;
 
-    public static function setUpBeforeClass(): void
+    protected function setUp(): void
     {
-        self::$client = static::createClient();
-        self::$entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $this->client = static::createClient();
+        $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        // Truncate entities before each test
+        $this->truncateEntities();
     }
 
-    public static function tearDownAfterClass(): void
+    protected function tearDown(): void
     {
-        // Clean up database after all tests
-        self::truncateEntities();
+        parent::tearDown();
 
-        self::$entityManager = null;
-        self::$client = null;
+        // Clean up database after each test
+        $this->truncateEntities();
+
+        $this->entityManager->close();
+        $this->entityManager = null;
+        $this->client = null;
     }
 
-    private static function truncateEntities(): void
+    private function truncateEntities(): void
     {
-        $connection = self::$entityManager->getConnection();
+        $connection = $this->entityManager->getConnection();
         $platform = $connection->getDatabasePlatform();
 
         // Disable foreign key checks
         $connection->executeQuery('SET FOREIGN_KEY_CHECKS = 0;');
 
         try {
-            self::$entityManager->getClassMetadata(Vehicle::class);
-            $tableName = self::$entityManager->getClassMetadata(Vehicle::class)->getTableName();
+            $this->entityManager->getClassMetadata(Vehicle::class);
+            $tableName = $this->entityManager->getClassMetadata(Vehicle::class)->getTableName();
             $connection->executeStatement($platform->getTruncateTableSQL($tableName, true));
         } catch (\Exception $e) {
             // Handle exception if the entity does not exist
         }
 
         try {
-            self::$entityManager->getClassMetadata(VehicleMaker::class);
-            $tableName = self::$entityManager->getClassMetadata(VehicleMaker::class)->getTableName();
+            $this->entityManager->getClassMetadata(VehicleMaker::class);
+            $tableName = $this->entityManager->getClassMetadata(VehicleMaker::class)->getTableName();
             $connection->executeStatement($platform->getTruncateTableSQL($tableName, true));
         } catch (\Exception $e) {
             // Handle exception if the entity does not exist
@@ -64,7 +67,7 @@ class VehicleControllerTest extends WebTestCase
     {
         $maker = new VehicleMaker();
         $maker->setName('Toyota');
-        self::$entityManager->persist($maker);
+        $this->entityManager->persist($maker);
 
         $vehicle = new Vehicle();
         $vehicle->setMaker($maker);
@@ -72,9 +75,9 @@ class VehicleControllerTest extends WebTestCase
         $vehicle->setModel('Corolla');
         $vehicle->setTopSpeed(180);
         $vehicle->setEngineType('Petrol');
-        self::$entityManager->persist($vehicle);
+        $this->entityManager->persist($vehicle);
 
-        self::$entityManager->flush();
+        $this->entityManager->flush();
 
         return $vehicle;
     }
@@ -85,13 +88,13 @@ class VehicleControllerTest extends WebTestCase
         $this->createData();
 
         // WHEN
-        self::$client->request('GET', '/api/vehicles/makers?type=Sedan', [], [], [
+        $this->client->request('GET', '/api/vehicles/makers?type=Sedan', [], [], [
             'HTTP_X-AUTH-TOKEN' => 'my-secret-token'
         ]);
 
         // THEN
         $this->assertResponseIsSuccessful();
-        $responseContent = json_decode(self::$client->getResponse()->getContent(), true);
+        $responseContent = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertCount(1, $responseContent);
         $this->assertEquals('Toyota', $responseContent[0]['name']);
     }
@@ -102,13 +105,13 @@ class VehicleControllerTest extends WebTestCase
         $vehicle = $this->createData();
 
         // WHEN
-        self::$client->request('GET', '/api/vehicles/' . $vehicle->getId(), [], [], [
+        $this->client->request('GET', '/api/vehicles/' . $vehicle->getId(), [], [], [
             'HTTP_X-AUTH-TOKEN' => 'my-secret-token'
         ]);
 
         // THEN
         $this->assertResponseIsSuccessful();
-        $responseContent = json_decode(self::$client->getResponse()->getContent(), true);
+        $responseContent = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals($vehicle->getId(), $responseContent['id']);
         $this->assertEquals('Corolla', $responseContent['model']);
     }
@@ -120,18 +123,18 @@ class VehicleControllerTest extends WebTestCase
         $newTopSpeed = 200;
 
         // WHEN
-        self::$client->request('PATCH', '/api/vehicles/' . $vehicle->getId(), [], [], [
+        $this->client->request('PATCH', '/api/vehicles/' . $vehicle->getId(), [], [], [
             'HTTP_X-AUTH-TOKEN' => 'my-secret-token',
             'CONTENT_TYPE' => 'application/json'
         ], json_encode(['topSpeed' => $newTopSpeed]));
 
         // THEN
         $this->assertResponseIsSuccessful();
-        $responseContent = json_decode(self::$client->getResponse()->getContent(), true);
+        $responseContent = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals($newTopSpeed, $responseContent['topSpeed']);
 
         // Verify the change in the database
-        $updatedVehicle = self::$entityManager->getRepository(Vehicle::class)->find($vehicle->getId());
+        $updatedVehicle = $this->entityManager->getRepository(Vehicle::class)->find($vehicle->getId());
         $this->assertEquals($newTopSpeed, $updatedVehicle->getTopSpeed());
     }
 
@@ -141,7 +144,7 @@ class VehicleControllerTest extends WebTestCase
         $vehicle = $this->createData();
 
         // WHEN
-        self::$client->request('PATCH', '/api/vehicles/' . $vehicle->getId(), [], [], [
+        $this->client->request('PATCH', '/api/vehicles/' . $vehicle->getId(), [], [], [
             'CONTENT_TYPE' => 'application/json'
         ], json_encode(['topSpeed' => 200]));
 
