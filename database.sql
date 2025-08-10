@@ -19,7 +19,7 @@ CREATE TABLE `vehicle` (
     `height` DECIMAL(10, 2),
     `weight` DECIMAL(10, 2),
     `number_of_seats` INT,
-    `0_to_100_time` DECIMAL(10, 2),
+    `zero_to_hundred_time` DECIMAL(10, 2),
     -- Foreign key to link to the vehicle_maker table
     FOREIGN KEY (`maker_id`) REFERENCES `vehicle_maker`(`id`) ON DELETE CASCADE
 );
