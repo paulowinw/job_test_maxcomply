@@ -16,7 +16,16 @@ php bin/console doctrine:database:create --env=test
 php bin/console doctrine:migrations:migrate
 php bin/console doctrine:migrations:migrate --env=test
 ```
-### Example data can be found in database_example_data.sql
+### Example data can be found in 
+```
+database_example_data.sql
+```
+### Example CURL request (Consider the AUTH token hardcoded on configs)
+```
+curl --location 'http://localhost:8000/api/vehicles/1' \
+--header 'X-AUTH-TOKEN: my-secret-token'
+```
+
 
 # Critical endpoints that would be add and why
 
