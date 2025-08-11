@@ -41,6 +41,18 @@
         </deprecationTrigger>
     </source>
 
+    <coverage>
+        <source>
+            <include>
+                <directory suffix=".php">src</directory>
+            </include>
+        </source>
+        <report>
+            <html outputDirectory="coverage-report" />
+            <text showUncoveredFiles="true" />
+        </report>
+    </coverage>
+
     <extensions>
     </extensions>
 </phpunit>

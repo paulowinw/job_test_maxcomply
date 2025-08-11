@@ -4,6 +4,7 @@ composer.lock
 symfony.lock
 vendor/
 var/
+coverage-report/
 compose.override.yaml
 
 ###> phpunit/phpunit ###
